@@ -341,7 +341,7 @@ if (keyboard){
 void glEntity::KeyDown(unsigned char key, int x, int y)
 //Note: because there is an Idle-func, we don't have to call Display here
 {
-    //~ float xrotrad, yrotrad;
+    float xrotrad, yrotrad;
 	glEntity::keyChoice=key;
 	std::cout << "key x y"  << x << "," << y << std::endl;
 	if (!text_input_on){
@@ -382,7 +382,7 @@ void glEntity::KeyDown(unsigned char key, int x, int y)
 				mouse = false;
 				keyboard = true;
 				std::cout << "key2 x y"  << x << "," << y << std::endl;				
-				process_move(x,y);
+				//~ process_move(x,y);
 				    switch(key)
 				    {
 				    case 'q':

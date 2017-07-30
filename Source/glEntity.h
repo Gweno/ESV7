@@ -39,7 +39,7 @@ class glEntity : public Entity {
              static void dataToGl(dataFile);
              static void glCoordinateToGlEntity_All();
              static void glCoordinateToGlEntity(unsigned int iterEntity);
-             static void process_move(int x, int y);
+             //~ static void process_move(int x, int y);
 
       public:
 
