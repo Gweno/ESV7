@@ -28,7 +28,7 @@ bool cameraMoveEnable=false;
 bool entityMoveEnable=false;
 bool displayMenu=false;
 bool mouse=false;
-bool mouseClick=false;
+bool mouse_button_down=false;
 bool mouseMove = false;
 bool keyboard=false;
 std::string input_text;
@@ -195,11 +195,6 @@ for (int i = 0; i < int(Xpos.size()); i++)
 void glEntity::fixEntity(void){
 	/// testing fixed object
 		glPushMatrix();
-//		glTranslatef (-1.0f,-1.0f,-1.0f);
-//	    glRotatef(-xrot,1.0,0.0,0.0);
-//	    glRotatef(-yrot,0.0,1.0,0.0);
-
-//	    std::cout << "In fixEntity: xrot, yrot, xpos, ypos, zpos: " << xrot << " , " << yrot << " , " << xpos << " , " << ypos << " , " << zpos << std::endl;
 
 if (mouse){
     glRotatef(-yrot_m,0.0,1.0,0.0);  //rotate our camera on the y-axis (up and down)
@@ -213,26 +208,11 @@ if (keyboard){
     glTranslated(xpos_k,ypos_k,zpos_k); //translate the screen to the position of our camera
 }
 
-//	    //	    glTranslated(xpos,ypos,zpos); //translate the screen to the position of our camera
-//	    glTranslatef(xpos_m,ypos_m,zpos_m); //translate the screen to the position of our camera
-
-
-	    //	    glRotatef(-yrot,0.0,1.0,0.0);  //rotate our camera on the y-axis (up and down)
-	//	    glRotatef(-xrot,1.0,0.0,0.0);  //rotate our camera on the x-axis (left and right)
-//	    glTranslatef(xpos,ypos,zpos); //translate the screen to the position of our camera
-
 	    glTranslated(-5.0, 3.0, 1.0); //translate the screen to the position
-
-//	    glTranslatef(((float) lastx-250)/500,((float) lasty-250)/500,0);
 	    glEnable (GL_BLEND);
 	    glEnable(GL_COLOR_MATERIAL);
 	    glColor4f(1.0, 1.0, 1.0f, 1.0f);
 	    glutSolidCube (0.3);
-//	    sprintf(ePrintAll[4], "xrot:%2.3f yrot:%2.3f",xrot,yrot);
-//	    sprintf(ePrintAll[5], "xpos:%2.3f ypos:%2.3f ypos:%2.3f",xpos,ypos,zpos);
-
-
-
 	    sprintf(ePrintAll[6], "Mouse xrot:%2.3f yrot:%2.3f",xrot_m,yrot_m);
 	    sprintf(ePrintAll[7], "Mouse xpos:%2.3f ypos:%2.3f ypos:%2.3f",xpos_m,ypos_m,zpos_m);
 	    sprintf(ePrintAll[8], "KeyBoard xrot:%2.3f yrot:%2.3f",xrot_k,yrot_k);
@@ -322,233 +302,308 @@ void glEntity::initEntity(){
 
 
 void glEntity::camera (void) {
-//    glRotatef(xrot,1.0,0.0,0.0);  //rotate our camera on the x-axis (left and right)
-//    glRotatef(yrot,0.0,1.0,0.0);  //rotate our camera on the y-axis (up and down)
-//    glTranslated(-xpos,-ypos,-zpos); //translate the screen to the position of our camera
-if (mouse) {
-	glRotatef(xrot_m,1.0,0.0,0.0);  //rotate our camera on the x-axis (left and right)
-    glRotatef(yrot_m,0.0,1.0,0.0);  //rotate our camera on the y-axis (up and down)
-    glTranslated(xpos_m,ypos_m,zpos_m); //translate the screen to the position of our camera
-}
-if (keyboard){
-	glRotatef(xrot_k,1.0,0.0,0.0);  //rotate our camera on the x-axis (left and right)
-    glRotatef(yrot_k,0.0,1.0,0.0);  //rotate our camera on the y-axis (up and down)
-    glTranslated(-xpos_k,-ypos_k,-zpos_k); //translate the screen to the position of our camera
-}
-	glFlush();
+	//~ if (mouse) {
+		glRotatef(xrot_m,1.0,0.0,0.0);  //rotate our camera on the x-axis (left and right)
+		glRotatef(yrot_m,0.0,1.0,0.0);  //rotate our camera on the y-axis (up and down)
+		glTranslated(xpos_m,ypos_m,zpos_m); //translate the screen to the position of our camera
+	//~ }
+	//~ if (keyboard){
+		glRotatef(xrot_k,1.0,0.0,0.0);  //rotate our camera on the x-axis (left and right)
+		glRotatef(yrot_k,0.0,1.0,0.0);  //rotate our camera on the y-axis (up and down)
+		glTranslated(-xpos_k,-ypos_k,-zpos_k); //translate the screen to the position of our camera
+	//~ }
+		glFlush();
+	}
+
+void glEntity::mouseMovement(int x, int y) {
+	mouse_button_down = false;
+	mouseMove = true;
+	process_move(x,y);
+	}
+	
+void glEntity::mouseMovement_Rclick(int x, int y){
+	mouse_button_down = true;
+	mouseMove = true;
+	process_move(x,y);
+	}
+
+void glEntity::process_move(int x, int y){
+	unsigned char key;
+	float xrotrad, yrotrad;
+	
+	std::cout << "process_move x y"  << x << "," << y << std::endl;
+	std::cout << "process_move cameraMoveEnable"  << cameraMoveEnable << std::endl;
+	std::cout << "process_move  keyboard"  << keyboard << std::endl;
+	
+	if ((cameraMoveEnable) and mouseMove and !(mouse_button_down)){
+		mouse = true;
+		keyboard = false;
+		float diffx=x-lastx; //check the difference between the current x and the last x position
+		float diffy=y-lasty; //check the difference between the current y and the last y position
+		lastx=x; //set lastx to the current x position
+		lasty=y; //set lasty to the current y position
+		xrot_m += (float) diffy; //set the xrot to xrot with the addition of the difference in the y position
+		yrot_m += (float) diffx;    //set the xrot to yrot with the addition of the difference in the x position
+		if (xrot_m >360) xrot_m -= 360;
+		if (xrot_m < -360) xrot_m += 360;
+		if (yrot_m >360) yrot_m -= 360;
+		if (yrot_m < -360) yrot_m += 360;
+		std::cout<<"move" << std::endl;
+	}
+
+	if ((cameraMoveEnable) and mouseMove and mouse_button_down){
+		mouse = true;
+		keyboard = false;
+		float diffx=x-lastx; //check the difference between the current x and the last x position
+		float diffy=y-lasty; //check the difference between the current y and the last y position
+		lastx=x; //set lastx to the current x position
+		lasty=y; //set lasty to the current y position
+		if(diffx<0) xpos_m += ((float) diffx-250)/500;
+		if(diffx>0) xpos_m += (250-(float) diffx)/500;
+		if(diffy<0) ypos_m += (250-(float) diffy)/500;
+		if(diffy>0) ypos_m += ((float) diffy-250)/500;
+		std::cout<<"button_down" << std::endl;
+	}
+	
+		if ((entityMoveEnable) and mouseMove and !(mouse_button_down)){
+		float diffx=x-lastx; //check the difference between the current x and the last x position
+		float diffy=y-lasty; //check the difference between the current y and the last y position
+		lastx=x; //set lastx to the current x position
+		lasty=y; //set lasty to the current y position
+		if(diffx<0) xpos2 += ((float) diffx-250)/500;
+		if(diffx>0) xpos2 += (250-(float) diffx)/500;
+		if(diffy<0) ypos2 += (250-(float) diffy)/500;
+		if(diffy>0) ypos2 += ((float) diffy-250)/500;
+	}
+
+	if (cameraMoveEnable and keyboard){
+		mouse = false;
+		keyboard = true;
+		key = glEntity::keyChoice;
+		std::cout << "key: " << key << std::endl;
+		std::cout << "xrot_m(0): " << xrot_m << std::endl;
+		std::cout << "yrot_m(0): " << yrot_m << std::endl;
+		
+		
+			switch(key)
+			{
+			case 'q':
+				xrot_m += 1;
+				if (xrot_m >360) xrot_m -= 360;
+			break;
+
+			case 'z':
+				xrot_m -= 1;
+				if (xrot_m < -360) xrot_m += 360;
+			break;
+
+			case 'e':
+				yrot_m += 1;
+				if (yrot_m >360) yrot_m -= 360;
+			break;
+
+			case 'r':
+				yrot_m -= 1;
+				if (yrot_m < -360) yrot_m += 360;
+			break;
+
+
+			case 'w':
+				yrotrad = (yrot_m / 180 * 3.141592654f);
+				xrotrad = (xrot_m / 180 * 3.141592654f);
+				xpos_m += float(sin(yrotrad)) ;
+				zpos_m -= float(cos(yrotrad)) ;
+				ypos_m -= float(sin(xrotrad)) ;
+			break;
+
+			case 's':
+				yrotrad = (yrot_m / 180 * 3.141592654f);
+				xrotrad = (xrot_m / 180 * 3.141592654f);
+				xpos_m -= float(sin(yrotrad));
+				zpos_m += float(cos(yrotrad)) ;
+				ypos_m += float(sin(xrotrad));
+				break;
+
+			case 'd':
+				yrotrad = (yrot_m / 180 * 3.141592654f);
+				xpos_m += float(cos(yrotrad)) * 0.2;
+				zpos_m += float(sin(yrotrad)) * 0.2;
+				break;
+
+			case'a':
+				yrotrad = (yrot_m / 180 * 3.141592654f);
+				xpos_m -= float(cos(yrotrad)) * 0.2;
+				zpos_m -= float(sin(yrotrad)) * 0.2;
+				break;
+
+			case 'l':
+				LightEnabled = !LightEnabled;
+				if (LightEnabled) glEnable(GL_LIGHTING);
+					else glDisable(GL_LIGHTING);
+			break;
+		}
+		std::cout << "xrot_m(1): " << xrot_m << std::endl;
+		std::cout << "yrot_m(1): " << yrot_m << std::endl;
+
+	}
+
 }
 
-void glEntity::KeyDown(unsigned char key, int x, int y)
+void glEntity::keyDown(unsigned char key, int x, int y)
 //Note: because there is an Idle-func, we don't have to call Display here
 {
-    float xrotrad, yrotrad;
+    //~ float xrotrad, yrotrad;
 	glEntity::keyChoice=key;
-	std::cout << "key x y"  << x << "," << y << std::endl;
+	std::cout << "cameraMoveEnable"  << cameraMoveEnable << std::endl;
+	
 	if (!text_input_on){
 
-	switch(key)
-	{
-	case 'c':
-		displayMenu=false; //change switch position;
-		cameraMoveEnable=!cameraMoveEnable;  //force switch;
-		entityMoveEnable=false;
-		text_input_on=false;
-	break;
+		switch(key)
+		{
+		case 'c':
+			displayMenu=false; //change switch position;
+			cameraMoveEnable=!cameraMoveEnable;  //force switch;
+			entityMoveEnable=false;
+			text_input_on=false;
+		break;
 
-	case 'y':
-		displayMenu=false; //change switch position;
-		cameraMoveEnable=false; //force switch;
-		entityMoveEnable=!entityMoveEnable;	//force switch;
-		text_input_on=false;
-	break;
+		case 'y':
+			displayMenu=false; //change switch position;
+			cameraMoveEnable=false; //force switch;
+			entityMoveEnable=!entityMoveEnable;	//force switch;
+			text_input_on=false;
+		break;
 
-	case 'm':
-		displayMenu=!displayMenu; //change switch position;
-		cameraMoveEnable=false; //force switch;
-		entityMoveEnable=false;	//force switch;
-		text_input_on=false;
-	break;
+		case 'm':
+			displayMenu=!displayMenu; //change switch position;
+			cameraMoveEnable=false; //force switch;
+			entityMoveEnable=false;	//force switch;
+			text_input_on=false;
+		break;
 
-    case 27:	//ESC to exit program
-        exit(0);
-	break;
+		case 27:	//ESC to exit program
+			exit(0);
+		break;
 
 
-	default:
-	break;
-	}
-			if (cameraMoveEnable) {
+		default:
+		break;
+		}
+		if (cameraMoveEnable) {
+			
+			mouse = false;
+			keyboard = true;
+			std::cout << "key2 x y"  << x << "," << y << std::endl;				
+			mouseMove = false;
+			mouse_button_down = false;
+			process_move(x,y);
+		}
 				
-				mouse = false;
-				keyboard = true;
-				std::cout << "key2 x y"  << x << "," << y << std::endl;				
-				//~ process_move(x,y);
-				    switch(key)
-				    {
-				    case 'q':
-				    	xrot_k += 1;
-				    	if (xrot_k >360) xrot_k -= 360;
-				    break;
+		if (entityMoveEnable) {
+			switch (key){
+				case',':
+					xpos2 -= 1;
+				break;
 
-				    case 'z':
-				    	xrot_k -= 1;
-				    	if (xrot_k < -360) xrot_k += 360;
-				    break;
+				case'.':
+					xpos2 += 1;
+				break;
 
-				    case 'e':
-				    	yrot_k += 1;
-				    	if (yrot_k >360) yrot_k -= 360;
-				    break;
+				case'k':
+					ypos2 -= 1;
+				break;
 
-				    case 'r':
-				    	yrot_k -= 1;
-				    	if (yrot_k < -360) yrot_k += 360;
-				    break;
+				case'o':
+					ypos2 += 1;
+				break;
 
+				case'/':
+					zpos2 -= 1;
+				break;
 
-				    case 'w':
-						yrotrad = (yrot_k / 180 * 3.141592654f);
-						xrotrad = (xrot_k / 180 * 3.141592654f);
-						xpos_k += float(sin(yrotrad)) ;
-						zpos_k -= float(cos(yrotrad)) ;
-						ypos_k -= float(sin(xrotrad)) ;
-				    break;
+				case';':
+					zpos2 += 1;
+				break;
 
-				    case 's':
-						yrotrad = (yrot_k / 180 * 3.141592654f);
-						xrotrad = (xrot_k / 180 * 3.141592654f);
-						xpos_k -= float(sin(yrotrad));
-						zpos_k += float(cos(yrotrad)) ;
-						ypos_k += float(sin(xrotrad));
-						break;
-
-				    case 'd':
-						yrotrad = (yrot_k / 180 * 3.141592654f);
-						xpos_k += float(cos(yrotrad)) * 0.2;
-						zpos_k += float(sin(yrotrad)) * 0.2;
-						break;
-
-				    case'a':
-						yrotrad = (yrot_k / 180 * 3.141592654f);
-						xpos_k -= float(cos(yrotrad)) * 0.2;
-						zpos_k -= float(sin(yrotrad)) * 0.2;
-						break;
-
-					case 'l':
-						LightEnabled = !LightEnabled;
-						if (LightEnabled) glEnable(GL_LIGHTING);
-							else glDisable(GL_LIGHTING);
-					break;
-
-				}
-			}
-					if (entityMoveEnable) {
-						switch (key){
-						    case',':
-								xpos2 -= 1;
-						    break;
-
-						    case'.':
-								xpos2 += 1;
-						    break;
-
-						    case'k':
-								ypos2 -= 1;
-						    break;
-
-						    case'o':
-								ypos2 += 1;
-						    break;
-
-						    case'/':
-								zpos2 -= 1;
-						    break;
-
-						    case';':
-								zpos2 += 1;
-						    break;
-
-						    case'-':
-								if (glEntity::iterEntity!=0) glEntity::iterEntity-=1;
-									xpos2=Xpos.at(glEntity::iterEntity);
-									ypos2=Ypos.at(glEntity::iterEntity);
-									zpos2=Zpos.at(glEntity::iterEntity);
-									for (unsigned int i = 0; i < (unsigned int)(Xpos.size()); i++)
-									    {
-										if(i!=glEntity::iterEntity){
-											glEntity::fRed.at(i)=1.0;
-								//			glEntity::fGreen.at(i)=0.0;
-											glEntity::fBlue.at(i)=0.0;
-											glEntity::fAlpha.at(i)=0.0;
-										}
-									    }
-									glEntity::fRed.at(glEntity::iterEntity)=0.0;
-						//			glEntity::fGreen.at(glEntity::iterEntity)=0.0;
-									glEntity::fBlue.at(glEntity::iterEntity)=1.0;
-									glEntity::fAlpha.at(glEntity::iterEntity)=1.0;
-									break;
-
-						    case'=':
-						        	if (glEntity::iterEntity<Xpos.size()-1) glEntity::iterEntity+=1;
-									xpos2=Xpos.at(glEntity::iterEntity);
-									ypos2=Ypos.at(glEntity::iterEntity);
-									zpos2=Zpos.at(glEntity::iterEntity);
-									for (unsigned int i = 0; i < (unsigned int)(Xpos.size()); i++)
-									    {
-										if(i!=glEntity::iterEntity){
-									glEntity::fRed.at(i)=1.0;
-						//			glEntity::fGreen.at(i)=0.0;
-									glEntity::fBlue.at(i)=0.0;
-									glEntity::fAlpha.at(i)=0.0;
-										}
-									    }
-									glEntity::fRed.at(glEntity::iterEntity)=0.0;
-						//			glEntity::fGreen.at(glEntity::iterEntity)=0.0;
-									glEntity::fBlue.at(glEntity::iterEntity)=1.0;
-									glEntity::fAlpha.at(glEntity::iterEntity)=1.0;
-						    		break;
-
-
-					}
-					}
-
-			if (displayMenu){
-
-				switch (key)
-				{
-				    case'r':
-				//      Return to main menu
-				    glutLeaveMainLoop();
-				    break;
-
-	    		    case 'n':									//new
-	    		    	glEntity::newGlEntity();
-						glEntity::iterEntity=0;
-						glCoordinateToGlEntity(iterEntity);
-	    		//    	glEntity::iterEntity=Xpos.size()-1;
-						text_input_on = true;
-	    		        break;
-
-					case 'v':									//copy
-						glEntity::copyEntity();
-						glCoordinateToGlEntity(iterEntity);
-						if ( glEntity::Xpos.size()!=0 ) {
-								glEntity::iterEntity=Xpos.size()-1;
+				case'-':
+					if (glEntity::iterEntity!=0) glEntity::iterEntity-=1;
+						xpos2=Xpos.at(glEntity::iterEntity);
+						ypos2=Ypos.at(glEntity::iterEntity);
+						zpos2=Zpos.at(glEntity::iterEntity);
+						for (unsigned int i = 0; i < (unsigned int)(Xpos.size()); i++)
+							{
+							if(i!=glEntity::iterEntity){
+								glEntity::fRed.at(i)=1.0;
+					//			glEntity::fGreen.at(i)=0.0;
+								glEntity::fBlue.at(i)=0.0;
+								glEntity::fAlpha.at(i)=0.0;
 							}
-						else {
-	    		            		glEntity::iterEntity=0;
-							};
-						text_input_on = true;
-					break;
+							}
+						glEntity::fRed.at(glEntity::iterEntity)=0.0;
+			//			glEntity::fGreen.at(glEntity::iterEntity)=0.0;
+						glEntity::fBlue.at(glEntity::iterEntity)=1.0;
+						glEntity::fAlpha.at(glEntity::iterEntity)=1.0;
+						break;
 
-					case 'b':								//delete
-						glEntity::deleteGlEntity();
-						glEntity::deleteEntity(iterEntity);
-						glEntity::iterEntity=0;
-					break;
-
-				}
+				case'=':
+						if (glEntity::iterEntity<Xpos.size()-1) glEntity::iterEntity+=1;
+						xpos2=Xpos.at(glEntity::iterEntity);
+						ypos2=Ypos.at(glEntity::iterEntity);
+						zpos2=Zpos.at(glEntity::iterEntity);
+						for (unsigned int i = 0; i < (unsigned int)(Xpos.size()); i++)
+							{
+							if(i!=glEntity::iterEntity){
+						glEntity::fRed.at(i)=1.0;
+			//			glEntity::fGreen.at(i)=0.0;
+						glEntity::fBlue.at(i)=0.0;
+						glEntity::fAlpha.at(i)=0.0;
+							}
+							}
+						glEntity::fRed.at(glEntity::iterEntity)=0.0;
+			//			glEntity::fGreen.at(glEntity::iterEntity)=0.0;
+						glEntity::fBlue.at(glEntity::iterEntity)=1.0;
+						glEntity::fAlpha.at(glEntity::iterEntity)=1.0;
+						break;
 			}
+		}
+
+		if (displayMenu){
+
+			switch (key)
+			{
+				case'r':
+			//      Return to main menu
+				glutLeaveMainLoop();
+				break;
+
+				case 'n':									//new
+					glEntity::newGlEntity();
+					glEntity::iterEntity=0;
+					glCoordinateToGlEntity(iterEntity);
+			//    	glEntity::iterEntity=Xpos.size()-1;
+					text_input_on = true;
+					break;
+
+				case 'v':									//copy
+					glEntity::copyEntity();
+					glCoordinateToGlEntity(iterEntity);
+					if ( glEntity::Xpos.size()!=0 ) {
+							glEntity::iterEntity=Xpos.size()-1;
+						}
+					else {
+								glEntity::iterEntity=0;
+						};
+					text_input_on = true;
+				break;
+
+				case 'b':								//delete
+					glEntity::deleteGlEntity();
+					glEntity::deleteEntity(iterEntity);
+					glEntity::iterEntity=0;
+				break;
+
+			}
+		}
 
 	}	// end of 'when text_input_on is off'
 
@@ -569,71 +624,6 @@ void glEntity::KeyDown(unsigned char key, int x, int y)
 		}
 
 	}	// end of 'when text_input is on' (else)
-}
-
-	
-
-void glEntity::mouseMovement(int x, int y) {
-	
-	if (cameraMoveEnable) {
-
-
-	mouse = true;
-	keyboard = false;
-	float diffx=x-lastx; //check the difference between the current x and the last x position
-    float diffy=y-lasty; //check the difference between the current y and the last y position
-    lastx=x; //set lastx to the current x position
-    lasty=y; //set lasty to the current y position
-//    xrot += (float) diffy; //set the xrot to xrot with the addition of the difference in the y position
-//    yrot += (float) diffx;    //set the xrot to yrot with the addition of the difference in the x position
-    xrot_m += (float) diffy; //set the xrot to xrot with the addition of the difference in the y position
-    yrot_m += (float) diffx;    //set the xrot to yrot with the addition of the difference in the x position
-    if (xrot_m >360) xrot_m -= 360;
-    if (xrot_m < -360) xrot_m += 360;
-    if (yrot_m >360) yrot_m -= 360;
-	if (yrot_m < -360) yrot_m += 360;
-	xpos_m=0;
-	ypos_m=0;
-	zpos_m=0;
-
-	}
-	}
-
-void glEntity::mouseMovement_Rclick(int x, int y){
-if (cameraMoveEnable) {
-mouse = true;
-keyboard = false;
-float diffx=x-lastx; //check the difference between the current x and the last x position
-float diffy=y-lasty; //check the difference between the current y and the last y position
-lastx=x; //set lastx to the current x position
-lasty=y; //set lasty to the current y position
-//    xrot += (float) diffy; //set the xrot to xrot with the addition of the difference in the y position
-//    yrot += (float) diffx;    //set the xrot to yrot with the addition of the difference in the x position
-//xpos_m += (float) diffy; //set the xrot to xrot with the addition of the difference in the y position
-//ypos_m += (float) diffx;    //set the xrot to yrot with the addition of the difference in the x position
-if(diffx<0) xpos_m += ((float) diffx-250)/500;
-if(diffx>0) xpos_m += (250-(float) diffx)/500;
-if(diffy<0) ypos_m += (250-(float) diffy)/500;
-if(diffy>0) ypos_m += ((float) diffy-250)/500;
-xrot_m=0;
-yrot_m=0;
-std::cout<<"click" << std::endl;
-}
-if (entityMoveEnable) {
-float diffx=x-lastx; //check the difference between the current x and the last x position
-float diffy=y-lasty; //check the difference between the current y and the last y position
-lastx=x; //set lastx to the current x position
-lasty=y; //set lasty to the current y position
-if(diffx<0) xpos2 += ((float) diffx-250)/500;
-if(diffx>0) xpos2 += (250-(float) diffx)/500;
-if(diffy<0) ypos2 += (250-(float) diffy)/500;
-if(diffy>0) ypos2 += ((float) diffy-250)/500;
-//    double xloc = x;
-//    sprintf(gMouseXLoc, "%2.15f", xloc);
-
-//    glTranslated(-xpos,-ypos,-zpos); //translate the screen to the position of our camera
-}
-
 }
 
 // Test to move Entity 1 with the mouse

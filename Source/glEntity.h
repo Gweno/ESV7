@@ -19,7 +19,7 @@ class glEntity : public Entity {
              static void displayEntity(void);
              static void reshapeEntity(int w, int h);
 
-             static void KeyDown(unsigned char key, int x, int y);
+             static void keyDown(unsigned char key, int x, int y);
              static void mouseMovement(int x, int y);
              static void mouseMovement_Rclick(int x, int y);
              static void camera (void);
@@ -39,7 +39,7 @@ class glEntity : public Entity {
              static void dataToGl(dataFile);
              static void glCoordinateToGlEntity_All();
              static void glCoordinateToGlEntity(unsigned int iterEntity);
-             //~ static void process_move(int x, int y);
+             static void process_move(int x, int y);
 
       public:
 

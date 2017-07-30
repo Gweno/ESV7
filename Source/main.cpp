@@ -40,23 +40,13 @@ int main (int argc, char **argv) {
     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, tata.MatShininess);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
-//    glutMotionFunc(tata.mouseMovement); //check for mouse movement with button down
     glutPassiveMotionFunc(tata.mouseMovement); //check for Mouse movement with button up
     glutMotionFunc(tata.mouseMovement_Rclick); //check for Mouse movement with button down
-
-//    glutMotionFunc(tata.entityMovement); //check for mouse movement with button down moving the Entity(0)
-//    glutMouseFunc(tata.entityMovement);
-
-
     std::cout << "before glutKeyboardFunc ";
-    glutKeyboardFunc(tata.KeyDown);
-
+    glutKeyboardFunc(tata.keyDown);
     std::cout << "after glutKeyboardFunc ";
-
     glutMainLoop ();
-//   glutMainLoopEvent();
 
-//   return 0;
    exit(0);
 }
 
